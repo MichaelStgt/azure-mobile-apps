@@ -47,12 +47,12 @@ namespace BlogServer.Services
             var user = await _dbContext.Users.FindAsync(userId);
 
             // User doesn't exist yet on our database so we will populate its data
-            // TODO: User profile image from Graph (maybe getting more data from the user profile)
             if(user == null && !string.IsNullOrEmpty(userId))
             {
+                //User profile image from Graph (maybe getting more data from the user profile)
+                //Here you can use the TokenAcquisition to get a valid token for Graph API with user.read scope for example.
                 //string[] scopes = { "user.read" };
                 //var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-
                 user = _dbContext.Users.Add(new User
                 {
                     Id = userId,
