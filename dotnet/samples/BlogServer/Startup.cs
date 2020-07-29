@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using System.Reflection;
 
 namespace BlogServer
@@ -25,7 +26,10 @@ namespace BlogServer
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMicrosoftWebApiAuthentication(Configuration);
+            services.AddMicrosoftWebApiAuthentication(Configuration)
+                    .AddMicrosoftWebApiCallsWebApi(Configuration)
+                    .AddInMemoryTokenCaches();
+
             services.AddAuthorization();
             services.AddHttpContextAccessor();
             services.AddScoped<IUserService, UserService>();

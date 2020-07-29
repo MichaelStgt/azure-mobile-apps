@@ -12,11 +12,13 @@ namespace BlogServer.Services
     {
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly BlogDbContext _dbContext;
+        private readonly ITokenAcquisition _tokenAcquisition;
 
-        public UserService(IHttpContextAccessor contextAccessor, BlogDbContext dbContext)
+        public UserService(IHttpContextAccessor contextAccessor, BlogDbContext dbContext, ITokenAcquisition tokenAcquisition)
         {
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _tokenAcquisition = tokenAcquisition;
         }
 
         public string GetUserId()
@@ -48,6 +50,9 @@ namespace BlogServer.Services
             // TODO: User profile image from Graph (maybe getting more data from the user profile)
             if(user == null && !string.IsNullOrEmpty(userId))
             {
+                //string[] scopes = { "user.read" };
+                //var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+
                 user = _dbContext.Users.Add(new User
                 {
                     Id = userId,
