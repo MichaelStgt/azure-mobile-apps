@@ -22,8 +22,8 @@
     <ScrollView>
         <Grid RowDefinitions="Auto,60,30,Auto,60,*" HorizontalOptions="Fill" Padding="20,0,20,0">
 
-            <Button Grid.Row="0" HorizontalOptions="Start"  TextColor="Black" Text="Login" Command="{Binding LoginCommand}" />
-            <!--<Label Grid.Row="0" Text="SUNDAY 4 AUGUST" Style="{DynamicResource TopicLabel}" />-->
+            <!--<Button Grid.Row="0" HorizontalOptions="Start"  TextColor="Black" Text="Login" Command="{Binding LoginCommand}" />-->
+            <Label Grid.Row="0" Text="SUNDAY 4 AUGUST" Style="{DynamicResource TopicLabel}" />
 
             <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
                 <Label Grid.Column="0" Text="Blog" FontSize="45" FontAttributes="Bold" FontFamily="Helvetica" />
@@ -42,7 +42,7 @@
                 <CarouselView.ItemTemplate>
                     <DataTemplate>
 
-                        <yummy:PancakeView CornerRadius="40" HorizontalOptions="FillAndExpand" HeightRequest="240" WidthRequest="240" Border="{yummy:BorderMarkup Color=Black, Thickness='1'}" >
+                        <yummy:PancakeView CornerRadius="40" HorizontalOptions="FillAndExpand" HeightRequest="240" WidthRequest="240" >
 
 
                             <Grid RowDefinitions="Auto,*,Auto,Auto">

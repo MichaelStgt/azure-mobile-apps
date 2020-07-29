@@ -32,17 +32,12 @@ namespace XFBlogClient.Services
             //_blogPosts = testBlogPosts.Generate(20);
         }
 
-        public async Task Login()
+        public async Task LoginAsync()
         {
             if (App.AuthenticationClient is null)
             {
                 throw new NullReferenceException("AuthenticationClient is null");
             }
-
-            //foreach (var account in await App.AuthenticationClient.GetAccountsAsync())
-            //{
-            //    await App.AuthenticationClient.RemoveAsync(account);
-            //}
 
             var accounts = await App.AuthenticationClient.GetAccountsAsync();
             AuthenticationResult result;
@@ -73,6 +68,12 @@ namespace XFBlogClient.Services
             try
             {
                 _blogPosts = table.GetItems().ToList();
+                var faker = new Faker();
+                foreach (var blogPost in _blogPosts)
+                {
+                    blogPost.AuthorName = faker.Name.FullName();
+                    blogPost.AuthorAvatarUrl = faker.Internet.Avatar();
+                }
             }
             catch (Exception e)
             {
@@ -125,10 +126,10 @@ namespace XFBlogClient.Services
         {
             if (client is null)
             {
-                await Login();
+                await LoginAsync();
             }
 
-            if (_blogPosts is null || !_blogPosts.Any())
+            if (_blogPosts is null || !_blogPosts.Any() || forceRefresh)
             {
                 LoadBlogPosts();
             }

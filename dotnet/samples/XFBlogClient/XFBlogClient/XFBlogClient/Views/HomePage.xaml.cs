@@ -18,7 +18,7 @@ namespace XFBlogClient.Views
         {
             base.OnAppearing();
             var vm = BindingContext as HomeViewModel;
-            //await vm.InitAsync();
+            await vm.InitAsync();
         }
 
         

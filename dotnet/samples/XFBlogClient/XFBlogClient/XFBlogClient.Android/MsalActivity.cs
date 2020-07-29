@@ -8,7 +8,7 @@ namespace XFBlogClient.Droid
     [IntentFilter(new[] { Intent.ActionView },
         Categories = new[] { Intent.CategoryBrowsable, Intent.CategoryDefault },
         DataHost = "auth",
-        DataScheme = "msal787c6673-aec2-46cb-a82c-b89a629af5df")]
+        DataScheme = "msal50b7a23e-bb9e-42d5-91e9-a7eb77f45a3b")]
     public class MsalActivity : BrowserTabActivity
     {
 

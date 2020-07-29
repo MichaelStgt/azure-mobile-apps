@@ -9,7 +9,7 @@ namespace XFBlogClient.ValueConverters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return !(value is DateTime) ? value : ((DateTime)value).Humanize();
+            return value is null ? "" : ((DateTime) value).ToUniversalTime().Humanize();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
