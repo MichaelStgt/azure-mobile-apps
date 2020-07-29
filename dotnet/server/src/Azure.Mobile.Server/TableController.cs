@@ -8,9 +8,9 @@ using Microsoft.AspNet.OData.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OData;
 using Microsoft.OData.Edm;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -93,6 +93,7 @@ namespace Azure.Mobile.Server
         /// <param name="operation">The <see cref="TableOperation"/> that is being performed</param>
         /// <param name="item">The item that is being accessed (or null for a list operation).</param>
         /// <returns>true if the user is allowed to perform the operation.</returns>
+        [NonAction]
         public virtual bool IsAuthorized(TableOperation operation, TEntity item) => true;
 
         /// <summary>
@@ -102,6 +103,7 @@ namespace Azure.Mobile.Server
         /// </summary>
         /// <param name="item">The item to be prepared</param>
         /// <returns>The prepared item</returns>
+        [NonAction]
         public virtual TEntity PrepareItemForStore(TEntity item) => item;
 
         /// <summary>
@@ -111,6 +113,7 @@ namespace Azure.Mobile.Server
         /// </summary>
         /// <param name="item">The item to be prepared</param>
         /// <returns>The prepared item</returns>
+        [NonAction]
         public virtual Task<TEntity> PrepareItemForStoreAsync(TEntity item)
             => Task.Run(() => PrepareItemForStore(item));
 
@@ -162,26 +165,26 @@ namespace Azure.Mobile.Server
             // Construct the OData context and parse the query
             var queryContext = new ODataQueryContext(EdmModel, typeof(TEntity), new ODataPath());
             var odataOptions = new ODataQueryOptions<TEntity>(queryContext, Request);
-            odataOptions.Validate(odataValidationSettings);
+            try
+            {
+                odataOptions.Validate(odataValidationSettings);
+            }
+            catch (ODataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             var odataQuery = odataOptions.ApplyTo(dataView.AsQueryable(), odataQuerySettings);
+            var items = (odataQuery as IEnumerable<TEntity>).ToList();
+            var excludeItems = Request.Query.ContainsKey("__excludeitems") && Request.Query["__excludeitems"].First().ToLower() == "true";
 
-            // BUG: NextLink is always produced, resulting in a infinite loop in the client
-            // Fix right now - if Values[].Count == 0, then don't set the NextLink
-            var items = odataQuery as IEnumerable<TEntity>;
             var result = new PagedListResult<TEntity>
             {
-                Values = odataQuery as IEnumerable<TEntity>
+                Values = !excludeItems ? items : null,
+                NextLink = (!excludeItems && items.Count() > 0) ? Request.GetNextPageLink(TableControllerOptions.PageSize) : null,
+                Count = odataOptions.Count?.GetEntityCount(odataOptions.Filter?.ApplyTo(dataView.AsQueryable(), new ODataQuerySettings()) ?? dataView.AsQueryable()),
+                MaxTop = TableControllerOptions.MaxTop,
+                PageSize = TableControllerOptions.PageSize
             };
-            if (items.Count() > 0)
-            {
-                result.NextLink = Request.GetNextPageLink(TableControllerOptions.PageSize);
-            }
-
-            // TODO: THIS DOES NOT WORK
-            //if (odataOptions.Count != null)
-            //{
-            //    result.Count = odataOptions.Count.GetEntityCount(odataQuery);
-            //};
 
             return Ok(result); 
         }
