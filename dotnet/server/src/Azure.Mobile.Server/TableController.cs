@@ -8,12 +8,14 @@ using Microsoft.AspNet.OData.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OData;
 using Microsoft.OData.Edm;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azure.Mobile.Server
@@ -96,6 +98,43 @@ namespace Azure.Mobile.Server
         public virtual bool IsAuthorized(TableOperation operation, TEntity item) => true;
 
         /// <summary>
+        /// If the <see cref="IsAuthorized(TableOperation, TEntity)"/> method doesn't provide enough flexibility,
+        /// then you can use the <see cref="ValidateOperation(TableOperation, TEntity)"/> or its async equivalent
+        /// to return a HTTP status code.  Returning StatusCodes.OK will indicate that the operation can proceed,
+        /// whereas returning a different status code will stop processing and return that status code to the
+        /// user.
+        /// 
+        /// No additional information is provided to the user, so avoid the use of 409 Conflict or other response
+        /// codes that suggest additional information will be available.
+        /// </summary>
+        /// <param name="operation">The operation being performed</param>
+        /// <param name="item">The item being used (null for lists)</param>
+        /// <returns>A HTTP Status Code</returns>
+        [NonAction]
+        public virtual int ValidateOperation(TableOperation operation, TEntity item) 
+            => 200;
+
+        /// <summary>
+        /// If the <see cref="IsAuthorized(TableOperation, TEntity)"/> method doesn't provide enough flexibility,
+        /// then you can use the <see cref="ValidateOperationAsync(TableOperation, TEntity)"/> or its sync equivalent
+        /// to return a HTTP status code.  Returning StatusCodes.OK will indicate that the operation can proceed,
+        /// whereas returning a different status code will stop processing and return that status code to the
+        /// user.
+        /// 
+        /// No additional information is provided to the user, so avoid the use of 409 Conflict or other response
+        /// codes that suggest additional information will be available.
+        /// </summary>
+        /// <param name="operation">The operation being performed</param>
+        /// <param name="item">The item being used (null for lists)</param>
+        /// <returns>A HTTP Status Code</returns>
+        [NonAction]
+        public virtual async ValueTask<int> ValidateOperationAsync(TableOperation operation, TEntity item, CancellationToken cancellationToken = default)
+        {
+            int result = await Task.Run(() => ValidateOperation(operation, item), cancellationToken).ConfigureAwait(false);
+            return result;
+        }
+
+        /// <summary>
         /// Prepares the item for storing into the backend store.  This is a opportunity for the application
         /// to add additional meta-data that is not passed back to the client (such as the user ID in a 
         /// personal data store).
@@ -133,8 +172,14 @@ namespace Azure.Mobile.Server
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual IActionResult GetItems()
+        public virtual async Task<IActionResult> GetItems()
         {
+            var operationValidation = await ValidateOperationAsync(TableOperation.List, null);
+            if (operationValidation != StatusCodes.Status200OK)
+            {
+                return StatusCode(operationValidation);
+            }
+
             if (!IsAuthorized(TableOperation.List, null))
             {
                 return NotFound();
@@ -154,36 +199,30 @@ namespace Azure.Mobile.Server
                 PageSize = TableControllerOptions.PageSize,
                 EnsureStableOrdering = true
             };
-            
-            new ODataQuerySettings
-            {
-                PageSize = TableControllerOptions.PageSize,
-                EnsureStableOrdering = true
-            };
 
             // Construct the OData context and parse the query
             var queryContext = new ODataQueryContext(EdmModel, typeof(TEntity), new ODataPath());
             var odataOptions = new ODataQueryOptions<TEntity>(queryContext, Request);
-            odataOptions.Validate(odataValidationSettings);
+            try
+            {
+                odataOptions.Validate(odataValidationSettings);
+            }
+            catch (ODataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             var odataQuery = odataOptions.ApplyTo(dataView.AsQueryable(), odataQuerySettings);
+            var items = (odataQuery as IEnumerable<TEntity>).ToList();
+            var excludeItems = Request.Query.ContainsKey("__excludeitems") && Request.Query["__excludeitems"].First().ToLower() == "true";
 
-            // BUG: NextLink is always produced, resulting in a infinite loop in the client
-            // Fix right now - if Values[].Count == 0, then don't set the NextLink
-            var items = odataQuery as IEnumerable<TEntity>;
             var result = new PagedListResult<TEntity>
             {
-                Values = odataQuery as IEnumerable<TEntity>
+                Values = !excludeItems ? items : null,
+                NextLink = (!excludeItems && items.Count() > 0) ? Request.GetNextPageLink(TableControllerOptions.PageSize) : null,
+                Count = odataOptions.Count?.GetEntityCount(odataOptions.Filter?.ApplyTo(dataView.AsQueryable(), new ODataQuerySettings()) ?? dataView.AsQueryable()),
+                MaxTop = TableControllerOptions.MaxTop,
+                PageSize = TableControllerOptions.PageSize
             };
-            if (items.Count() > 0)
-            {
-                result.NextLink = Request.GetNextPageLink(TableControllerOptions.PageSize);
-            }
-
-            // TODO: THIS DOES NOT WORK
-            //if (odataOptions.Count != null)
-            //{
-            //    result.Count = odataOptions.Count.GetEntityCount(odataQuery);
-            //};
 
             return Ok(result); 
         }
@@ -203,6 +242,12 @@ namespace Azure.Mobile.Server
             if (item.Id == null)
             {
                 item.Id = Guid.NewGuid().ToString("N");
+            }
+
+            var operationValidation = await ValidateOperationAsync(TableOperation.Create, item);
+            if (operationValidation != StatusCodes.Status200OK)
+            {
+                return StatusCode(operationValidation);
             }
 
             if (!IsAuthorized(TableOperation.Create, item))
@@ -243,7 +288,18 @@ namespace Azure.Mobile.Server
         public virtual async Task<IActionResult> DeleteItemAsync(string id)
         {
             var entity = await TableRepository.LookupAsync(id).ConfigureAwait(false);
-            if (entity == null || entity.Deleted || !IsAuthorized(TableOperation.Delete, entity))
+            if (entity == null || entity.Deleted)
+            {
+                return NotFound();
+            }
+
+            var operationValidation = await ValidateOperationAsync(TableOperation.Delete, entity);
+            if (operationValidation != StatusCodes.Status200OK)
+            {
+                return StatusCode(operationValidation);
+            }
+
+            if (!IsAuthorized(TableOperation.Delete, entity))
             {
                 return NotFound();
             }
@@ -280,7 +336,18 @@ namespace Azure.Mobile.Server
         public virtual async Task<IActionResult> ReadItemAsync(string id)
         {
             var entity = await TableRepository.LookupAsync(id).ConfigureAwait(false);
-            if (entity == null || entity.Deleted || !IsAuthorized(TableOperation.Read, entity))
+            if (entity == null || entity.Deleted)
+            {
+                return NotFound();
+            }
+
+            var operationValidation = await ValidateOperationAsync(TableOperation.Read, entity);
+            if (operationValidation != StatusCodes.Status200OK)
+            {
+                return StatusCode(operationValidation);
+            }
+
+            if (!IsAuthorized(TableOperation.Read, entity))
             {
                 return NotFound();
             }
@@ -318,7 +385,18 @@ namespace Azure.Mobile.Server
             }
 
             var entity = await TableRepository.LookupAsync(id).ConfigureAwait(false);
-            if (entity == null || entity.Deleted || !IsAuthorized(TableOperation.Replace, entity))
+            if (entity == null || entity.Deleted)
+            {
+                return NotFound();
+            }
+
+            var operationValidation = await ValidateOperationAsync(TableOperation.Replace, item);
+            if (operationValidation != StatusCodes.Status200OK)
+            {
+                return StatusCode(operationValidation);
+            }
+
+            if (!IsAuthorized(TableOperation.Replace, item))
             {
                 return NotFound();
             }
@@ -357,7 +435,18 @@ namespace Azure.Mobile.Server
         public virtual async Task<IActionResult> PatchItemAsync(string id, [FromBody] JsonPatchDocument<TEntity> patchDocument)
         {
             var entity = await TableRepository.LookupAsync(id).ConfigureAwait(false);
-            if (entity == null || !IsAuthorized(TableOperation.Patch, entity))
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            var operationValidation = await ValidateOperationAsync(TableOperation.Patch, entity);
+            if (operationValidation != StatusCodes.Status200OK)
+            {
+                return StatusCode(operationValidation);
+            }
+
+            if (!IsAuthorized(TableOperation.Patch, entity))
             {
                 return NotFound();
             }
