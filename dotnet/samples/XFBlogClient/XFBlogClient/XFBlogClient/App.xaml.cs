@@ -24,6 +24,8 @@ namespace XFBlogClient
 
 
             AuthenticationClient = PublicClientApplicationBuilder.Create(Constants.ClientId)
+                .WithAuthority("https://login.microsoftonline.com/common/v2.0")
+                .WithDefaultRedirectUri()
                 //.WithIosKeychainSecurityGroup(Constants.IosKeychainSecurityGroups)
                 //.WithB2CAuthority(Constants.AuthoritySignin)
                 //.WithParentActivityOrWindow(() => UIParent)
@@ -38,6 +40,14 @@ namespace XFBlogClient
 
         protected override void OnStart()
         {
+            AuthenticationClient = PublicClientApplicationBuilder.Create(Constants.ClientId)
+                .WithAuthority("https://login.microsoftonline.com/common/v2.0")
+                .WithDefaultRedirectUri()
+                //.WithIosKeychainSecurityGroup(Constants.IosKeychainSecurityGroups)
+                //.WithB2CAuthority(Constants.AuthoritySignin)
+                //.WithParentActivityOrWindow(() => UIParent)
+                .WithRedirectUri($"msal{Constants.ClientId}://auth")
+                .Build();
         }
 
         protected override void OnSleep()

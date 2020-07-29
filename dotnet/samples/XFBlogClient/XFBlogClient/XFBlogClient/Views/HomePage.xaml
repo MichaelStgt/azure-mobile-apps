@@ -42,10 +42,10 @@
                 <CarouselView.ItemTemplate>
                     <DataTemplate>
 
-                        <yummy:PancakeView CornerRadius="40" HorizontalOptions="FillAndExpand" HeightRequest="240" WidthRequest="240">
+                        <yummy:PancakeView CornerRadius="40" HorizontalOptions="FillAndExpand" HeightRequest="240" WidthRequest="240" Border="{yummy:BorderMarkup Color=Black, Thickness='1'}" >
 
 
-                            <Grid RowDefinitions="Auto,*,Auto,Auto"  >
+                            <Grid RowDefinitions="Auto,*,Auto,Auto">
                                 <Image Grid.Row="0" HorizontalOptions="End" HeightRequest="40" WidthRequest="40" >
                                     <Image.Source>
                                         <FontImageSource FontFamily="FontAwesomeSolid" Color="White" Glyph="&#xf02e;" />
