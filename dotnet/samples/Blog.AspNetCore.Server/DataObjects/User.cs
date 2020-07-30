@@ -1,6 +1,6 @@
 ﻿using Azure.Mobile.Server.Entity;
 
-namespace BlogServer.DataObjects
+namespace Blog.AspNetCore.Server.DataObjects
 {
     public class User : EntityTableData
     {

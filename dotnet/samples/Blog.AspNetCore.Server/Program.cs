@@ -1,9 +1,9 @@
-using BlogServer.Database;
+using Blog.AspNetCore.Server.Database;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace BlogServer
+namespace Blog.AspNetCore.Server
 {
     public class Program
     {

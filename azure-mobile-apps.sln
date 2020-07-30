@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.Mobile.Client.Test", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.Mobile.Server.Test.E2EServer", "dotnet\server\test\Azure.Mobile.Server.Test.E2EServer\Azure.Mobile.Server.Test.E2EServer.csproj", "{2A669FBA-F128-494F-8D87-63AD40DB13ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogServer", "dotnet\samples\BlogServer\BlogServer.csproj", "{BBA7203E-A20D-486F-B477-14AC5D5AD4B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blog.AspNetCore.Server", "dotnet\samples\Blog.AspNetCore.Server\Blog.AspNetCore.Server.csproj", "{BBA7203E-A20D-486F-B477-14AC5D5AD4B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

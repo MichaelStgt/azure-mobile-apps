@@ -1,15 +1,15 @@
 ﻿using Azure.Mobile.Server;
 using Azure.Mobile.Server.Entity;
-using BlogServer.Database;
-using BlogServer.DataObjects;
-using BlogServer.Services;
+using Blog.AspNetCore.Server.Database;
+using Blog.AspNetCore.Server.DataObjects;
+using Blog.AspNetCore.Server.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BlogServer.Controllers
+namespace Blog.AspNetCore.Server.Controllers
 {
     [Route("tables/bookmarks")]
     [ApiController]

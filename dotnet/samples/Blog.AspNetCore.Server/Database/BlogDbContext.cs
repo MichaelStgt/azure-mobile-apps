@@ -1,7 +1,7 @@
-﻿using BlogServer.DataObjects;
+﻿using Blog.AspNetCore.Server.DataObjects;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogServer.Database
+namespace Blog.AspNetCore.Server.Database
 {
     public class BlogDbContext : DbContext
     {

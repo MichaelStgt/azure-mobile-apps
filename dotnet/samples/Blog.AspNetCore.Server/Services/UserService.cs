@@ -1,12 +1,12 @@
-﻿using BlogServer.Database;
-using BlogServer.DataObjects;
+﻿using Blog.AspNetCore.Server.Database;
+using Blog.AspNetCore.Server.DataObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BlogServer.Services
+namespace Blog.AspNetCore.Server.Services
 {
     public class UserService : IUserService
     {

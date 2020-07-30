@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "BlogServer": {
+    "Blog.AspNetCore.Server": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "tables/blog_posts",

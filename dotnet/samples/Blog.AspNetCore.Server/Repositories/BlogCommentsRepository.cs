@@ -1,11 +1,11 @@
 ﻿using Azure.Mobile.Server.Entity;
-using BlogServer.DataObjects;
+using Blog.AspNetCore.Server.DataObjects;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BlogServer.Repositories
+namespace Blog.AspNetCore.Server.Repositories
 {
     public class BlogCommentsRepository : EntityTableRepository<BlogComment>
     {

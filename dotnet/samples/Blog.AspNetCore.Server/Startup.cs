@@ -1,6 +1,6 @@
 using Azure.Mobile.Server;
-using BlogServer.Database;
-using BlogServer.Services;
+using Blog.AspNetCore.Server.Database;
+using Blog.AspNetCore.Server.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using System.Reflection;
 
-namespace BlogServer
+namespace Blog.AspNetCore.Server
 {
     public class Startup
     {

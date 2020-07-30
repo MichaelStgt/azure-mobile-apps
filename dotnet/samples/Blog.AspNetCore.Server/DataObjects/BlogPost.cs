@@ -2,7 +2,7 @@
 using Microsoft.AspNet.OData.Query;
 using System;
 
-namespace BlogServer.DataObjects
+namespace Blog.AspNetCore.Server.DataObjects
 {
     [Filter]
     [OrderBy]

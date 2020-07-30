@@ -1,8 +1,8 @@
-﻿using BlogServer.DataObjects;
+﻿using Blog.AspNetCore.Server.DataObjects;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BlogServer.Services
+namespace Blog.AspNetCore.Server.Services
 {
     public interface IUserService
     {

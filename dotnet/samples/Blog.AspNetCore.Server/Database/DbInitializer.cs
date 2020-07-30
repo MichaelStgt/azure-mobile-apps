@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace BlogServer.Database
+namespace Blog.AspNetCore.Server.Database
 {
     public static class DbInitializer
     {

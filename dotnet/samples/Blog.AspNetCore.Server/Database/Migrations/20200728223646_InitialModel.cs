@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace BlogServer.Database.Migrations
+namespace Blog.AspNetCore.Server.Database.Migrations
 {
     public partial class InitialModel : Migration
     {

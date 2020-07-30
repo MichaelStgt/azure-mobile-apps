@@ -1,13 +1,13 @@
 ﻿using Azure.Mobile.Server;
-using BlogServer.Database;
-using BlogServer.DataObjects;
-using BlogServer.Repositories;
-using BlogServer.Services;
+using Blog.AspNetCore.Server.Database;
+using Blog.AspNetCore.Server.DataObjects;
+using Blog.AspNetCore.Server.Repositories;
+using Blog.AspNetCore.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace BlogServer.Controllers
+namespace Blog.AspNetCore.Server.Controllers
 {
     [Route("tables/blogcomments")]
     [ApiController]

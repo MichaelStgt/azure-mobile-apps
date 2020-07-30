@@ -1,7 +1,7 @@
 ﻿using Azure.Mobile.Server.Entity;
 using System;
 
-namespace BlogServer.DataObjects
+namespace Blog.AspNetCore.Server.DataObjects
 {
     public class BlogComment : EntityTableData
     {
