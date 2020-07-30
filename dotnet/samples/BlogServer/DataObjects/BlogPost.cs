@@ -1,8 +1,11 @@
 ﻿using Azure.Mobile.Server.Entity;
+using Microsoft.AspNet.OData.Query;
 using System;
 
 namespace BlogServer.DataObjects
 {
+    [Filter]
+    [OrderBy]
     public class BlogPost : EntityTableData
     {
         public string Title { get; set; }
