@@ -35,7 +35,8 @@ namespace XFBlogClient
 
             InitializeComponent();
 
-            DependencyService.Register<MockDataStore>();
+            DependencyService.Register<BlogDataStore>();
+            DependencyService.Register<AuthenticationService>();
             MainPage = new AppShell();
         }
 

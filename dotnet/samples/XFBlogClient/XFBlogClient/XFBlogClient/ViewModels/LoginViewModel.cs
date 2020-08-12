@@ -21,7 +21,9 @@ namespace XFBlogClient.ViewModels
         {
             // Prefixing with `//` switches to a different navigation stack instead of pushing to the active one
             var dataService = DependencyService.Get<IDataStore<BlogPost>>();
-            await dataService.LoginAsync();
+            var authService = DependencyService.Get<IAuthenticationService>();
+
+            await authService.LoginAsync();
             await dataService.GetItemsAsync(forceRefresh:true);
             await Shell.Current.GoToAsync($"//{nameof(HomePage)}");
         }

@@ -56,7 +56,8 @@ namespace XFBlogClient.ViewModels
         private async Task OnLogin()
         {
             var dataService = DependencyService.Get<IDataStore<BlogPost>>();
-            await dataService.LoginAsync();
+            var authService = DependencyService.Get<IAuthenticationService>();
+            await authService.LoginAsync();
 
             var blogPosts = await dataService.GetItemsAsync();
             //await AddPosts(dataService);
